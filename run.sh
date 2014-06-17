@@ -2,21 +2,21 @@
 
 
 if [ ! -n "$WERCKER_SLACK_NOTIFY_SUBDOMAIN" ]; then
-# fatal causes the wercker interface to display the error without the need to
+# fail causes the wercker interface to display the error without the need to
 # expand the step
-  fatal 'Please specify the subdomain property'
+  fail 'Please specify the subdomain property'
 fi
 
 if [ ! -n "$WERCKER_SLACK_NOTIFY_TOKEN" ]; then
-  fatal 'Please specify token property'
+  fail 'Please specify token property'
 fi
 
 if [ ! -n "$WERCKER_SLACK_NOTIFY_CHANNEL" ]; then
-  fatal 'Please specify a channel'
+  fail 'Please specify a channel'
 fi
 
 if [[ $WERCKER_SLACK_NOTIFY_CHANNEL == \#* ]]; then
-  fatal "Please specify the channel without the '#'"
+  fail "Please specify the channel without the '#'"
 fi
 
 if [ ! -n "$WERCKER_SLACK_NOTIFY_FAILED_MESSAGE" ]; then
@@ -55,25 +55,25 @@ RESULT=`curl -s -d "payload=$json" "https://$WERCKER_SLACK_NOTIFY_SUBDOMAIN.slac
 
 if [ "$RESULT" = "500" ]; then
   if grep -Fqx "No token" $WERCKER_STEP_TEMP/result.txt; then
-    fatal "No token is specified."
+    fail "No token is specified."
   fi
 
   if grep -Fqx "No hooks" $WERCKER_STEP_TEMP/result.txt; then
-    fatal "No hook can be found for specified subdomain/token"
+    fail "No hook can be found for specified subdomain/token"
   fi
 
   if grep -Fqx "Invalid channel specified" $WERCKER_STEP_TEMP/result.txt; then
-    fatal "Could not find specified channel for subdomain/token."
+    fail "Could not find specified channel for subdomain/token."
   fi
 
   if grep -Fqx "No text specified" $WERCKER_STEP_TEMP/result.txt; then
-    fatal "No text specified."
+    fail "No text specified."
   fi
 
   # Unhandled error
-  # fatal <$WERCKER_STEP_TEMP/result.txt
+  # fail <$WERCKER_STEP_TEMP/result.txt
 fi
 
 if [ "$RESULT" = "404" ]; then
-  fatal "Subdomain or token not found."
+  fail "Subdomain or token not found."
 fi
